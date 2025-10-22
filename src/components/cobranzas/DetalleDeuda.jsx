@@ -7,7 +7,7 @@ export default function DetalleDeuda({ cliente, onClose }) {
   const [ventas, setVentas] = useState([])
   const [pagos, setPagos] = useState([])
   const [loading, setLoading] = useState(true)
-  const [tabActiva, setTabActiva] = useState('ventas') // ventas, pagos
+  const [tabActiva, setTabActiva] = useState('ventas') 
 
   useEffect(() => {
     cargarDatos()

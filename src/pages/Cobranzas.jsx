@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { DollarSign, Users, TrendingUp, Search, Eye, CreditCard, MessageCircle, X, AlertCircle, Download } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import toast from 'react-hot-toast'
-import DetalleDeuda from '../components/cobranzas/detalleDeuda'
-import RegistrarPago from '../components/cobranzas/registrarPago'
+import DetalleDeuda from '../components/cobranzas/DetalleDeuda'
+import RegistrarPago from '../components/cobranzas/RegistrarPago'
 
 export default function Cobranzas() {
   const [deudores, setDeudores] = useState([])
