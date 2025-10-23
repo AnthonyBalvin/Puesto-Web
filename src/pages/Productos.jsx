@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Plus, Search, Edit2, Trash2, Package, QrCode, Camera, X, Download, Calculator, Tag, AlertCircle } from 'lucide-react'
+import { Plus, Search, Edit2, Trash2, Package, QrCode, Camera, X, Download, Calculator, Tag, AlertCircle, AlertTriangle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import toast from 'react-hot-toast'
 import { Html5Qrcode } from 'html5-qrcode'
@@ -14,6 +14,10 @@ export default function Productos() {
   const [showQRGenerator, setShowQRGenerator] = useState(false)
   const [showCategorias, setShowCategorias] = useState(false)
   const [showCalculadora, setShowCalculadora] = useState(false)
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false)
+  const [showConfirmDeleteCategoria, setShowConfirmDeleteCategoria] = useState(false)
+  const [productoAEliminar, setProductoAEliminar] = useState(null)
+  const [categoriaAEliminar, setCategoriaAEliminar] = useState(null)
   const [selectedProduct, setSelectedProduct] = useState(null)
   const scannerRef = useRef(null)
   const html5QrCode = useRef(null)
@@ -133,17 +137,24 @@ export default function Productos() {
     setShowModal(true)
   }
 
-  const handleDelete = async (id) => {
-    if (!confirm('¿Estás seguro de eliminar este producto?')) return
+  const handleDelete = (producto) => {
+    setProductoAEliminar(producto)
+    setShowConfirmDelete(true)
+  }
+
+  const confirmarEliminacion = async () => {
+    if (!productoAEliminar) return
     
     try {
       const { error } = await supabase
         .from('productos')
         .update({ activo: false })
-        .eq('id', id)
+        .eq('id', productoAEliminar.id)
       
       if (error) throw error
       toast.success('Producto eliminado')
+      setShowConfirmDelete(false)
+      setProductoAEliminar(null)
       cargarDatos()
     } catch (error) {
       toast.error('Error al eliminar producto')
@@ -253,17 +264,24 @@ export default function Productos() {
     }
   }
 
-  const eliminarCategoria = async (id) => {
-    if (!confirm('¿Eliminar esta categoría? Los productos mantendrán su categoría actual.')) return
+  const eliminarCategoria = (categoria) => {
+    setCategoriaAEliminar(categoria)
+    setShowConfirmDeleteCategoria(true)
+  }
+
+  const confirmarEliminacionCategoria = async () => {
+    if (!categoriaAEliminar) return
     
     try {
       const { error } = await supabase
         .from('categorias')
         .delete()
-        .eq('id', id)
+        .eq('id', categoriaAEliminar.id)
       
       if (error) throw error
       toast.success('Categoría eliminada')
+      setShowConfirmDeleteCategoria(false)
+      setCategoriaAEliminar(null)
       cargarDatos()
     } catch (error) {
       toast.error('Error al eliminar categoría')
@@ -442,7 +460,7 @@ export default function Productos() {
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(producto.id)}
+                          onClick={() => handleDelete(producto)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
                           title="Eliminar"
                         >
@@ -533,7 +551,7 @@ export default function Productos() {
                   Editar
                 </button>
                 <button
-                  onClick={() => handleDelete(producto.id)}
+                  onClick={() => handleDelete(producto)}
                   className="flex-1 bg-red-50 text-red-600 hover:bg-red-100 py-2 rounded-lg flex items-center justify-center gap-2 transition text-sm font-medium"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -544,6 +562,96 @@ export default function Productos() {
           ))
         )}
       </div>
+
+      {/* Modal de Confirmación de Eliminación de Producto */}
+      {showConfirmDelete && productoAEliminar && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-[fadeIn_0.2s_ease-out]">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl animate-[scaleIn_0.3s_ease-out]">
+            <div className="p-6">
+              <div className="flex items-center justify-center mb-4">
+                <div className="bg-red-100 rounded-full p-3">
+                  <AlertTriangle className="w-8 h-8 text-red-600" />
+                </div>
+              </div>
+              
+              <h3 className="text-xl font-bold text-gray-800 text-center mb-2">
+                ¿Eliminar Producto?
+              </h3>
+              
+              <p className="text-gray-600 text-center mb-6">
+                ¿Estás seguro de que deseas eliminar <strong>{productoAEliminar.nombre}</strong>?
+                <br />
+                <span className="text-sm text-gray-500 mt-2 block">
+                  Esta acción no se puede deshacer.
+                </span>
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowConfirmDelete(false)
+                    setProductoAEliminar(null)
+                  }}
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmarEliminacion}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-200 font-semibold shadow-lg shadow-red-500/30"
+                >
+                  Sí, Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmación de Eliminación de Categoría */}
+      {showConfirmDeleteCategoria && categoriaAEliminar && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-[fadeIn_0.2s_ease-out]">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl animate-[scaleIn_0.3s_ease-out]">
+            <div className="p-6">
+              <div className="flex items-center justify-center mb-4">
+                <div className="bg-orange-100 rounded-full p-3">
+                  <AlertTriangle className="w-8 h-8 text-orange-600" />
+                </div>
+              </div>
+              
+              <h3 className="text-xl font-bold text-gray-800 text-center mb-2">
+                ¿Eliminar Categoría?
+              </h3>
+              
+              <p className="text-gray-600 text-center mb-6">
+                ¿Estás seguro de que deseas eliminar la categoría <strong>{categoriaAEliminar.nombre}</strong>?
+                <br />
+                <span className="text-sm text-gray-500 mt-2 block">
+                  Los productos mantendrán su categoría actual.
+                </span>
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowConfirmDeleteCategoria(false)
+                    setCategoriaAEliminar(null)
+                  }}
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmarEliminacionCategoria}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl hover:from-orange-700 hover:to-orange-800 transition-all duration-200 font-semibold shadow-lg shadow-orange-500/30"
+                >
+                  Sí, Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal de formulario */}
       {showModal && (
@@ -866,7 +974,7 @@ export default function Productos() {
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => eliminarCategoria(cat.id)}
+                          onClick={() => eliminarCategoria(cat)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -928,6 +1036,24 @@ export default function Productos() {
           </div>
         </div>
       )}
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}</style>
     </div>
   )
 }
