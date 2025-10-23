@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, Search, Edit2, Trash2, Users, Phone, MapPin, Mail, ShoppingBag, AlertCircle } from 'lucide-react'
+import { Plus, Search, Edit2, Trash2, Users, Phone, MapPin, Mail, ShoppingBag, AlertCircle, X, AlertTriangle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
@@ -11,6 +11,8 @@ export default function Clientes() {
   const [busqueda, setBusqueda] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [showDetalleCliente, setShowDetalleCliente] = useState(false)
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false)
+  const [clienteAEliminar, setClienteAEliminar] = useState(null)
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null)
   const [ventasCliente, setVentasCliente] = useState([])
   const [editando, setEditando] = useState(null)
@@ -127,16 +129,23 @@ export default function Clientes() {
       return
     }
 
-    if (!confirm('¿Estás seguro de eliminar este cliente?')) return
+    setClienteAEliminar(cliente)
+    setShowConfirmDelete(true)
+  }
+
+  const confirmarEliminacion = async () => {
+    if (!clienteAEliminar) return
     
     try {
       const { error } = await supabase
         .from('clientes')
         .update({ activo: false })
-        .eq('id', id)
+        .eq('id', clienteAEliminar.id)
       
       if (error) throw error
       toast.success('Cliente eliminado')
+      setShowConfirmDelete(false)
+      setClienteAEliminar(null)
       cargarDatos()
     } catch (error) {
       toast.error('Error al eliminar cliente')
@@ -363,6 +372,51 @@ export default function Clientes() {
         </div>
       </div>
 
+      {/* Modal de Confirmación de Eliminación */}
+      {showConfirmDelete && clienteAEliminar && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-[fadeIn_0.2s_ease-out]">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl animate-[scaleIn_0.3s_ease-out]">
+            <div className="p-6">
+              <div className="flex items-center justify-center mb-4">
+                <div className="bg-red-100 rounded-full p-3">
+                  <AlertTriangle className="w-8 h-8 text-red-600" />
+                </div>
+              </div>
+              
+              <h3 className="text-xl font-bold text-gray-800 text-center mb-2">
+                ¿Eliminar Cliente?
+              </h3>
+              
+              <p className="text-gray-600 text-center mb-6">
+                ¿Estás seguro de que deseas eliminar a <strong>{clienteAEliminar.nombre} {clienteAEliminar.apellido}</strong>?
+                <br />
+                <span className="text-sm text-gray-500 mt-2 block">
+                  Esta acción no se puede deshacer.
+                </span>
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowConfirmDelete(false)
+                    setClienteAEliminar(null)
+                  }}
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-semibold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmarEliminacion}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-200 font-semibold shadow-lg shadow-red-500/30"
+                >
+                  Sí, Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal de Crear/Editar Cliente */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -372,7 +426,7 @@ export default function Clientes() {
                 {editando ? 'Editar Cliente' : 'Nuevo Cliente'}
               </h2>
               <button onClick={cerrarModal} className="text-gray-400 hover:text-gray-600">
-                <Users className="w-6 h-6" />
+                <X className="w-6 h-6" />
               </button>
             </div>
 
@@ -497,7 +551,7 @@ export default function Clientes() {
                 <p className="text-gray-600 mt-1">Historial de compras</p>
               </div>
               <button onClick={() => setShowDetalleCliente(false)} className="text-gray-400 hover:text-gray-600">
-                <Users className="w-6 h-6" />
+                <X className="w-6 h-6" />
               </button>
             </div>
 
@@ -572,6 +626,24 @@ export default function Clientes() {
           </div>
         </div>
       )}
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}</style>
     </div>
   )
 }

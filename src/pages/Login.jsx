@@ -77,17 +77,15 @@ export default function Login() {
         {/* Panel derecho - Formulario */}
         <div className="w-full">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md mx-auto p-8 lg:p-10">
-            {/* Logo móvil */}
+            {/* Logo móvil - SIN IMAGEN */}
             <div className="lg:hidden text-center mb-6">
-              <img 
-                src={LogoImage} 
-                alt="PuestoWeb" 
-                className="w-32 h-32 mx-auto rounded-2xl shadow-lg object-cover mb-4"
-              />
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl mb-4 shadow-lg">
+                <ShoppingBag className="w-8 h-8 text-white" />
+              </div>
             </div>
 
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl mb-4 shadow-lg">
+              <div className="hidden lg:inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl mb-4 shadow-lg">
                 <ShoppingBag className="w-8 h-8 text-white" />
               </div>
               <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-2">

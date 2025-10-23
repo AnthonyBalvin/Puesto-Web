@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Plus, Search, Edit2, Trash2, Package, QrCode, Camera, X, Download, Calculator, Tag } from 'lucide-react'
+import { Plus, Search, Edit2, Trash2, Package, QrCode, Camera, X, Download, Calculator, Tag, AlertCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import toast from 'react-hot-toast'
 import { Html5Qrcode } from 'html5-qrcode'
@@ -18,14 +18,12 @@ export default function Productos() {
   const scannerRef = useRef(null)
   const html5QrCode = useRef(null)
   
-  // Calculadora
   const [calc, setCalc] = useState({
     precioTotal: '',
     cantidad: '',
     precioUnitario: 0
   })
 
-  // Categorías
   const [nuevaCategoria, setNuevaCategoria] = useState('')
   const [editandoCategoria, setEditandoCategoria] = useState(null)
 
@@ -38,7 +36,7 @@ export default function Productos() {
     stock_actual: '',
     stock_minimo: '',
     descripcion: '',
-    unidad_medida: 'unidad' // NUEVO
+    unidad_medida: 'unidad'
   })
   const [editando, setEditando] = useState(null)
 
@@ -65,7 +63,6 @@ export default function Productos() {
     }
   }, [])
 
-  // Calcular precio unitario automáticamente
   useEffect(() => {
     if (calc.precioTotal && calc.cantidad && calc.cantidad > 0) {
       const unitario = parseFloat(calc.precioTotal) / parseFloat(calc.cantidad)
@@ -171,7 +168,6 @@ export default function Productos() {
     })
   }
 
-  // Funciones del escáner QR
   const iniciarScanner = async () => {
     setShowScanner(true)
     
@@ -225,7 +221,6 @@ export default function Productos() {
     }
   }
 
-  // Gestión de categorías
   const guardarCategoria = async () => {
     if (!nuevaCategoria.trim()) {
       toast.error('Ingresa un nombre para la categoría')
@@ -304,19 +299,20 @@ export default function Productos() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Productos</h1>
-          <p className="text-gray-600 mt-1">Gestiona tu inventario de productos</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Productos</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Gestiona tu inventario de productos</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <button
             onClick={() => setShowCategorias(true)}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"
+            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 transition text-sm sm:text-base"
           >
-            <Tag className="w-5 h-5" />
-            Categorías
+            <Tag className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span>Categorías</span>
           </button>
           <button
             onClick={() => {
@@ -334,42 +330,43 @@ export default function Productos() {
                 unidad_medida: 'unidad'
               })
             }}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 transition text-sm sm:text-base"
           >
-            <Plus className="w-5 h-5" />
-            Nuevo Producto
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span>Nuevo Producto</span>
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        {/* Buscador mejorado */}
-        <div className="p-4 border-b border-gray-100">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="🔍 Buscar por nombre, código de barras o categoría..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-base"
-            />
-            {busqueda && (
-              <button
-                onClick={() => setBusqueda('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            )}
-          </div>
+      {/* Buscador */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="🔍 Buscar productos..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="w-full pl-10 pr-10 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm sm:text-base"
+          />
           {busqueda && (
-            <p className="text-sm text-gray-500 mt-2">
-              {productosFiltrados.length} producto(s) encontrado(s)
-            </p>
+            <button
+              onClick={() => setBusqueda('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-5 h-5" />
+            </button>
           )}
         </div>
+        {busqueda && (
+          <p className="text-xs sm:text-sm text-gray-500 mt-2">
+            {productosFiltrados.length} producto(s) encontrado(s)
+          </p>
+        )}
+      </div>
 
+      {/* Vista Desktop - Tabla */}
+      <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
@@ -461,12 +458,99 @@ export default function Productos() {
         </div>
       </div>
 
+      {/* Vista Mobile - Cards */}
+      <div className="md:hidden space-y-3">
+        {productosFiltrados.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+            <Package className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+            <p className="text-gray-500">{busqueda ? 'No se encontraron productos' : 'No hay productos registrados'}</p>
+          </div>
+        ) : (
+          productosFiltrados.map((producto) => (
+            <div key={producto.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+              {/* Header de la card */}
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-800 text-base mb-1">{producto.nombre}</h3>
+                  {producto.descripcion && (
+                    <p className="text-sm text-gray-500 line-clamp-2">{producto.descripcion}</p>
+                  )}
+                </div>
+                <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${
+                  producto.stock_actual <= producto.stock_minimo
+                    ? 'bg-red-100 text-red-800'
+                    : producto.stock_actual <= producto.stock_minimo * 2
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : 'bg-green-100 text-green-800'
+                }`}>
+                  {producto.stock_actual} {producto.unidad_medida || 'un'}
+                </span>
+              </div>
+
+              {/* Detalles */}
+              <div className="space-y-2 mb-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Categoría:</span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-100 text-xs font-medium">
+                    {producto.categorias?.nombre || 'Sin categoría'}
+                  </span>
+                </div>
+
+                {producto.codigo_barras && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Código:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs text-gray-600">{producto.codigo_barras}</span>
+                      <button
+                        onClick={() => generarQR(producto)}
+                        className="text-blue-600 hover:text-blue-700 p-1"
+                      >
+                        <QrCode className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                  <div>
+                    <p className="text-xs text-gray-500">Precio Venta</p>
+                    <p className="font-bold text-lg text-gray-800">S/ {parseFloat(producto.precio_venta).toFixed(2)}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500">Costo</p>
+                    <p className="text-sm text-gray-600">S/ {parseFloat(producto.precio_compra).toFixed(2)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Botones de acción */}
+              <div className="flex gap-2 pt-3 border-t border-gray-100">
+                <button
+                  onClick={() => handleEdit(producto)}
+                  className="flex-1 bg-blue-50 text-blue-600 hover:bg-blue-100 py-2 rounded-lg flex items-center justify-center gap-2 transition text-sm font-medium"
+                >
+                  <Edit2 className="w-4 h-4" />
+                  Editar
+                </button>
+                <button
+                  onClick={() => handleDelete(producto.id)}
+                  className="flex-1 bg-red-50 text-red-600 hover:bg-red-100 py-2 rounded-lg flex items-center justify-center gap-2 transition text-sm font-medium"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
       {/* Modal de formulario */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-xl max-w-3xl w-full my-8">
-            <div className="p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white rounded-t-xl">
-              <h2 className="text-2xl font-bold text-gray-800">
+          <div className="bg-white rounded-xl max-w-3xl w-full my-8 max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white rounded-t-xl z-10">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
                 {editando ? 'Editar Producto' : 'Nuevo Producto'}
               </h2>
               <button onClick={cerrarModal} className="text-gray-400 hover:text-gray-600">
@@ -474,21 +558,21 @@ export default function Productos() {
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
               {/* Calculadora de precio unitario */}
               {!showCalculadora ? (
                 <button
                   type="button"
                   onClick={() => setShowCalculadora(true)}
-                  className="w-full bg-green-50 border-2 border-dashed border-green-300 text-green-700 px-4 py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-green-100 transition"
+                  className="w-full bg-green-50 border-2 border-dashed border-green-300 text-green-700 px-4 py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-green-100 transition text-sm sm:text-base"
                 >
                   <Calculator className="w-5 h-5" />
-                  <span className="font-medium">¿Compraste al por mayor? Usa la calculadora de precio unitario</span>
+                  <span className="font-medium">Calculadora de precio unitario</span>
                 </button>
               ) : (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-green-800 flex items-center gap-2">
+                    <h3 className="font-semibold text-green-800 flex items-center gap-2 text-sm sm:text-base">
                       <Calculator className="w-5 h-5" />
                       Calculadora de Precio Unitario
                     </h3>
@@ -501,7 +585,7 @@ export default function Productos() {
                     </button>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Precio Total Pagado
@@ -536,7 +620,7 @@ export default function Productos() {
                   {calc.precioUnitario > 0 && (
                     <div className="bg-white rounded-lg p-4 border border-green-300">
                       <p className="text-sm text-gray-600 mb-1">Precio por unidad:</p>
-                      <p className="text-3xl font-bold text-green-700">S/ {calc.precioUnitario}</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-green-700">S/ {calc.precioUnitario}</p>
                       <button
                         type="button"
                         onClick={aplicarCalculadora}
@@ -549,8 +633,8 @@ export default function Productos() {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Producto *</label>
                   <input
                     type="text"
@@ -558,7 +642,7 @@ export default function Productos() {
                     value={formData.nombre}
                     onChange={(e) => setFormData({...formData, nombre: e.target.value})}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                    placeholder="Ej: Coca Cola 2L, Arroz Costeño 1kg, Azúcar Rubia"
+                    placeholder="Ej: Coca Cola 2L, Arroz Costeño 1kg"
                   />
                 </div>
 
@@ -573,42 +657,36 @@ export default function Productos() {
                       <option key={unidad.value} value={unidad.value}>{unidad.label}</option>
                     ))}
                   </select>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formData.unidad_medida === 'kg' && '💡 Para arroz/azúcar, registra precio por kg'}
-                    {formData.unidad_medida === 'litro' && '💡 Para aceite/leche, registra precio por litro'}
-                    {formData.unidad_medida === 'unidad' && '💡 Para productos individuales (gaseosas, galletas, etc.)'}
-                  </p>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Código de Barras / QR</label>
                   <div className="flex gap-2">
-    <input
-      type="text"
-      value={formData.codigo_barras}
-      onChange={(e) => setFormData({...formData, codigo_barras: e.target.value})}
-      onKeyPress={(e) => {
-        // 🔥 Detectar Enter después de escanear con máquina física
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          toast.success('✅ Código registrado');
-        }
-      }}
-      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-      placeholder="Escanea o escribe el código..."
-      autoComplete="off"
-    />
+                    <input
+                      type="text"
+                      value={formData.codigo_barras}
+                      onChange={(e) => setFormData({...formData, codigo_barras: e.target.value})}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          toast.success('✅ Código registrado');
+                        }
+                      }}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
+                      placeholder="Escanea o escribe..."
+                      autoComplete="off"
+                    />
                     <button
                       type="button"
                       onClick={iniciarScanner}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+                      className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
                     >
                       <Camera className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
 
-                <div>
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
                   <select
                     value={formData.categoria_id}
@@ -624,7 +702,7 @@ export default function Productos() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Precio de Compra (por {formData.unidad_medida}) *
+                    Precio de Compra *
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">S/</span>
@@ -642,7 +720,7 @@ export default function Productos() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Precio de Venta (por {formData.unidad_medida}) *
+                    Precio de Venta *
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">S/</span>
@@ -666,7 +744,7 @@ export default function Productos() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Stock Actual ({formData.unidad_medida}) *
+                    Stock Actual *
                   </label>
                   <input
                     type="number"
@@ -681,7 +759,7 @@ export default function Productos() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Stock Mínimo ({formData.unidad_medida}) *
+                    Stock Mínimo *
                   </label>
                   <input
                     type="number"
@@ -694,7 +772,7 @@ export default function Productos() {
                   />
                 </div>
 
-                <div className="md:col-span-2">
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
                   <textarea
                     value={formData.descripcion}
@@ -706,19 +784,19 @@ export default function Productos() {
                 </div>
               </div>
 
-              <div className="flex gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <button
                   type="button"
                   onClick={cerrarModal}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                  className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+                  className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
                 >
-                  {editando ? 'Actualizar Producto' : 'Guardar Producto'}
+                  {editando ? 'Actualizar' : 'Guardar'}
                 </button>
               </div>
             </form>
@@ -729,9 +807,9 @@ export default function Productos() {
       {/* Modal de Categorías */}
       {showCategorias && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-lg w-full">
-            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-800">Gestionar Categorías</h2>
+          <div className="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-4 sm:p-6 border-b border-gray-200 flex justify-between items-center flex-shrink-0">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Categorías</h2>
               <button onClick={() => {
                 setShowCategorias(false)
                 setNuevaCategoria('')
@@ -741,8 +819,7 @@ export default function Productos() {
               </button>
             </div>
             
-            <div className="p-6 space-y-4">
-              {/* Formulario de categoría */}
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -754,7 +831,7 @@ export default function Productos() {
                 />
                 <button
                   onClick={guardarCategoria}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition font-medium"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 rounded-lg transition font-medium whitespace-nowrap"
                 >
                   {editandoCategoria ? 'Actualizar' : 'Agregar'}
                 </button>
@@ -764,15 +841,14 @@ export default function Productos() {
                       setNuevaCategoria('')
                       setEditandoCategoria(null)
                     }}
-                    className="text-gray-600 hover:text-gray-800 px-3"
+                    className="text-gray-600 hover:text-gray-800 px-2"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 )}
               </div>
 
-              {/* Lista de categorías */}
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="space-y-2">
                 {categorias.length === 0 ? (
                   <p className="text-center text-gray-500 py-8">No hay categorías creadas</p>
                 ) : (
@@ -808,15 +884,15 @@ export default function Productos() {
       {/* Modal del escáner QR */}
       {showScanner && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
+          <div className="bg-white rounded-xl max-w-md w-full p-4 sm:p-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">Escanear Código</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-800">Escanear Código</h3>
               <button onClick={detenerScanner} className="text-gray-400 hover:text-gray-600">
                 <X className="w-6 h-6" />
               </button>
             </div>
             <div id="qr-reader" className="w-full"></div>
-            <p className="text-sm text-gray-600 text-center mt-4">
+            <p className="text-xs sm:text-sm text-gray-600 text-center mt-4">
               Coloca el código QR o de barras frente a la cámara
             </p>
           </div>
@@ -826,9 +902,9 @@ export default function Productos() {
       {/* Modal generador de QR */}
       {showQRGenerator && selectedProduct && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
+          <div className="bg-white rounded-xl max-w-md w-full p-4 sm:p-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">Código QR</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-800">Código QR</h3>
               <button onClick={() => setShowQRGenerator(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-6 h-6" />
               </button>
@@ -843,7 +919,7 @@ export default function Productos() {
               
               <button
                 onClick={descargarQR}
-                className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition"
+                className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 transition font-medium"
               >
                 <Download className="w-5 h-5" />
                 Descargar QR
