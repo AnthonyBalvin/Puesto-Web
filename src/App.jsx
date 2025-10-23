@@ -10,6 +10,7 @@ import Clientes from './pages/Clientes'
 import Reportes from './pages/Reportes'
 import Cobranzas from './pages/Cobranzas' 
 import Layout from './components/Layout'
+import Ayuda from './pages/Ayuda'
 
 function App() {
   const { user, loading, checkUser } = useAuthStore()
@@ -89,6 +90,10 @@ function App() {
         <Route
           path="/reportes"
           element={user ? <Layout><Reportes /></Layout> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/ayuda"
+          element={user ? <Layout><Ayuda /></Layout> : <Navigate to="/login" />}
         />
       </Routes>
     </BrowserRouter>

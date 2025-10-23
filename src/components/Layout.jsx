@@ -11,7 +11,8 @@ import {
   Menu,
   X,
   ShoppingBag,
-  DollarSign
+  DollarSign,
+  HelpCircle
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -22,6 +23,7 @@ const menuItems = [
   { path: '/clientes', icon: Users, label: 'Clientes' },
   { path: '/cobranzas', icon: DollarSign, label: 'Cobranzas' },
   { path: '/reportes', icon: FileText, label: 'Reportes' },
+  { path: '/ayuda', icon: HelpCircle, label: 'Ayuda' }, // 👈 Nuevo ítem agregado
 ]
 
 export default function Layout({ children }) {
@@ -182,23 +184,12 @@ export default function Layout({ children }) {
 
       <style>{`
         @keyframes slideInLeft {
-          from {
-            opacity: 0;
-            transform: translateX(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
+          from { opacity: 0; transform: translateX(-20px); }
+          to { opacity: 1; transform: translateX(0); }
         }
-        
         @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
       `}</style>
     </div>
